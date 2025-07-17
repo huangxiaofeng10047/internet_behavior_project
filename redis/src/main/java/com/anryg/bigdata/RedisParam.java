@@ -7,9 +7,9 @@ package com.anryg.bigdata;
  * @DESC: 提供Redis的基础属性配置
  */
 public interface RedisParam {
-    String HOSTS = "192.168.211.106";/**redis服务器列表，目前为单点*/
+    String HOSTS = "localhost";/**redis服务器列表，目前为单点*/
     int PORT = 6379;
-    String PASSWD = "pcl@2020";
+    String PASSWD = "xj2023";
     //可用连接实例的最大数目，默认值为8；
     //如果赋值为-1，则表示不限制；如果pool已经分配了maxActive个jedis实例，则此时pool的状态为exhausted(耗尽)
     int MAX_ACTIVE = 1500;
