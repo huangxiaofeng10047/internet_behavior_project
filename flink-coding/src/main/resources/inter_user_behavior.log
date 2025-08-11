@@ -1,0 +1,2 @@
+client_ip,domain,time,target_ip,rcode,query_type,authority_recode,add_msg,dns_ip
+192.168.12.13,baidu.com,2520377,192.168.13.14,0,1,baidu.com,,8.8.8.8

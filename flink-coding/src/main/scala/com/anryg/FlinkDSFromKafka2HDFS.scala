@@ -32,7 +32,7 @@ object FlinkDSFromKafka2HDFS {
         env.getCheckpointConfig.setCheckpointStorage(hdfsPrefix + "/tmp/flink_checkpoint/FlinkDSFromKafka2HDFS") //设置checkpoint的hdfs目录
 
         val kafkaSource = KafkaSource.builder()  //获取kafka数据源
-                .setBootstrapServers("192.168.211.107:6667")
+                .setBootstrapServers("localhost:29092,localhost:29093,localhost:29094")
                 .setTopics("qianxin")
                 .setGroupId("FlinkDSFromKafka2HDFS2")
                 .setStartingOffsets(OffsetsInitializer.latest())

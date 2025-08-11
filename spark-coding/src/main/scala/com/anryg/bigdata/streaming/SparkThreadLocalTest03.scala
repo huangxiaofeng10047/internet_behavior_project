@@ -13,9 +13,8 @@ object SparkThreadLocalTest03 {
 
   def main(args: Array[String]): Unit = {
     val sparkConf = new SparkConf().setAppName("SparkThreadLocalTest03")
-      .setMaster("local[*]")
+      .setMaster("local[*]").set("spark.default.parallelism", "1")
     val spark = SparkSession.builder().config(sparkConf).getOrCreate()
-
     /**构造数据源*/
     val seq = Seq("baidu.com",
       "qq.com",

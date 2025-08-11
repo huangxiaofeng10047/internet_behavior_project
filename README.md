@@ -19,3 +19,7 @@ add_msg: 附加信息，几乎都为空，你可以看看如果有内容的话�
 dns_ip：当前要上的这个网站由哪个DNS服务器给提供的解析，一般一个DNS服务器会服务一个区域，如果由同一个DNS服务器进行解析的，说明他们在同一片大的区域；
 
 以上是对这份数据的字段解读，相信从这些解释中，你已经大概能了解这份数据的作用了。
+https://blog.51cto.com/u_76633/5754944
+https://cloud.tencent.com/developer/article/1674380
+juicefs
+https://juicefs.com/docs/zh/community/production_deployment_recommendations

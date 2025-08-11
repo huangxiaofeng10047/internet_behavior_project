@@ -1,12 +1,15 @@
 package com.anryg
 
 import com.alibaba.fastjson.JSON
-import org.apache.flink.api.common.eventtime.WatermarkStrategy
+import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.connector.kafka.source.KafkaSource
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
+
+import java.text.SimpleDateFormat
+import java.time.Duration
 
 
 /**
@@ -23,9 +26,9 @@ object FlinkTest04 {
         val tableEnv = StreamTableEnvironment.create(env)
 
         val kafkaSource = KafkaSource.builder()
-                        .setBootstrapServers("192.168.211.107:6667")
-                        .setTopics("test")
-                        .setGroupId("group01")
+                        .setBootstrapServers("localhost:39092,localhost:39093,localhost:39094")
+                        .setTopics("test-time")
+                        .setGroupId("group02")
                         .setStartingOffsets(OffsetsInitializer.earliest())
                         .setValueOnlyDeserializer(new SimpleStringSchema())
                         .build()
@@ -36,21 +39,29 @@ object FlinkTest04 {
             val message = rawJson.getString("message")  //获取业务数据部分
             val msgArray = message.split(",")  //指定分隔符进行字段切分
             msgArray
-        }).filter(_.length == 9).map(array => {
+        }).filter(_.length == 9)
+          .assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofHours(10)) //指定watermark
+            .withTimestampAssigner(new SerializableTimestampAssigner[Array[String]] {
+                override def extractTimestamp(element: Array[String], recordTimestamp: Long): Long = {
+                    val sdf = new SimpleDateFormat("yyyyMMddhhmmss")
+                    sdf.parse(element(2)).getTime  //指定的watermark字段必须是Long类型的时间戳
+                }
+            }))
+          .map(array => {
             InternetBehavior(array(0)+array(1)+array(2),array(0),array(1),array(2),array(3),array(4),array(5),array(6),array(7),array(8))
         })
 
         val targetTable = tableEnv.fromDataStream(targetDS)//转化成为Table类型
-        //targetTable.execute().print()
+        targetTable.execute().print()
 
         /**定义sink*/
-        tableEnv.executeSql("CREATE TABLE InternetBehavior (\n\tid String,\n  client_ip STRING,\n  domain STRING,\n  do_time STRING,\n  target_ip STRING,\n  rcode int,\n  query_type string,\n  authority_record string,\n  add_msg string,\n  dns_ip string,\n  PRIMARY KEY (id) NOT ENFORCED\n) WITH (\n  'connector' = 'elasticsearch-7',\n  'hosts' = 'http://192.168.211.106:9201',\n  'index' = 'internet_behavior-flink'\n)")
-
-        targetTable.executeInsert("InternetBehavior")
-        //targetDS.addSink()
-        //targetTable.executeInsert()
-
-        //env.execute("FlinkTest03")
+//        tableEnv.executeSql("CREATE TABLE InternetBehavior (\n\tid String,\n  client_ip STRING,\n  domain STRING,\n  do_time STRING,\n  target_ip STRING,\n  rcode int,\n  query_type string,\n  authority_record string,\n  add_msg string,\n  dns_ip string,\n  PRIMARY KEY (id) NOT ENFORCED\n) WITH (\n  'connector' = 'elasticsearch-7',\n  'hosts' = 'http://192.168.211.106:9201',\n  'index' = 'internet_behavior-flink'\n)")
+//
+//        targetTable.executeInsert("InternetBehavior")
+//        //targetDS.addSink()
+//        //targetTable.executeInsert()
+//
+//        env.execute("FlinkTest03")
 
     }
 }
